@@ -279,7 +279,7 @@ clad-audit audit --root . --preset apps --verbose
     "clad:wizard": "clad-audit wizard"
   },
   "devDependencies": {
-    "@underwoodinc/clad-audit": "^0.3.0"
+    "@underwoodinc/clad-audit": "^0.4.0"
   }
 }
 ```

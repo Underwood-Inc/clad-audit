@@ -21,7 +21,7 @@ const program = new Command();
 program
   .name('clad-audit')
   .description('Agnostic CLAD tier and import-boundary auditor with scripted remediation.')
-  .version('0.3.0');
+  .version('0.4.0');
 
 program
   .command('audit')
