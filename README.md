@@ -1,9 +1,10 @@
 # @underwoodinc/clad-audit
 
-Standalone, **repository-agnostic** [CLAD](https://github.com/Underwood-Inc/clad-audit) auditor. Node.js CLI — **PowerShell, Linux, macOS**.
+Standalone, **repository-agnostic** [CLAD](./docs/philosophy/clad.md) auditor. Node.js CLI — **PowerShell, Linux, macOS**.
 
 **Repository:** https://github.com/Underwood-Inc/clad-audit  
-**npm:** https://www.npmjs.com/package/@underwoodinc/clad-audit
+**npm:** https://www.npmjs.com/package/@underwoodinc/clad-audit  
+**CLAD docs (bundled):** [`docs/philosophy/clad.md`](./docs/philosophy/clad.md)
 
 ## Install
 
@@ -28,6 +29,8 @@ clad-audit presets    # list audit tier presets
 ```
 
 No config file required — generic CLAD defaults apply. Add `.clad-audit.yaml` at your repo root when you need import aliases, extra view paths, or project-specific allowlists.
+
+New to CLAD? Read the bundled spec: [`docs/philosophy/clad.md`](./docs/philosophy/clad.md) (full) · [`docs/README.md`](./docs/README.md) (index + rule mapping).
 
 ---
 

@@ -34,7 +34,8 @@
     "dist",
     "README.md",
     "LICENSE",
-    "examples"
+    "examples",
+    "docs"
   ],
   "engines": {
     "node": ">=22.0.0"
