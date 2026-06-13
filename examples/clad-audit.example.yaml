@@ -1,0 +1,37 @@
+# Example consumer config — copy to `.clad-audit.yaml` in ANY repository root.
+# The clad-audit CLI reads this file from --root only; the tool has no hard-coded project coupling.
+
+srcRoot: src
+
+# Map path-alias prefixes (if your bundler uses them) to CLAD tiers:
+importAliases:
+  $atoms/: atoms
+  $molecules/: molecules
+  $organisms/: organisms
+  $recipes/: recipes
+  $apps/: apps
+  $sockets/: sockets
+  $plugs/: plugs
+  $views/: views
+
+# Optional: folders outside views/ that render UI (project-specific)
+views:
+  extraViewPaths: []
+
+# Optional: composition-root filename allowlist extensions (project-specific)
+apps:
+  allowedFilenamePatterns:
+    - '^mount[A-Za-z0-9_-]*\\.ts$'
+    - 'AppSession\\.svelte\\.ts$'
+
+analysis:
+  defaultDepth: standard
+  useTsMorph: true
+
+svelteProps:
+  enabled: true
+  maxProps: 4
+
+ignoreGlobs:
+  - '**/node_modules/**'
+  - '**/dist/**'

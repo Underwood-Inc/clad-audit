@@ -1,0 +1,61 @@
+{
+  "name": "@underwoodinc/clad-audit",
+  "version": "0.3.0",
+  "description": "Agnostic CLAD tier auditor with deep static analysis and scripted remediation plans.",
+  "type": "module",
+  "license": "MIT",
+  "author": "inc.underwood",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Underwood-Inc/clad-audit.git"
+  },
+  "homepage": "https://github.com/Underwood-Inc/clad-audit#readme",
+  "bugs": {
+    "url": "https://github.com/Underwood-Inc/clad-audit/issues"
+  },
+  "keywords": [
+    "clad",
+    "architecture",
+    "lint",
+    "tier",
+    "svelte",
+    "static-analysis"
+  ],
+  "main": "./dist/frames/cli.js",
+  "exports": {
+    ".": "./dist/frames/cli.js",
+    "./audit": "./dist/engines/auditEngine.js",
+    "./config": "./dist/motes/loadConfig.js"
+  },
+  "bin": {
+    "clad-audit": "./dist/frames/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "examples"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@inquirer/prompts": "^8.5.2",
+    "commander": "^12.1.0",
+    "fast-glob": "^3.3.2",
+    "picocolors": "^1.1.1",
+    "ts-morph": "^24.0.0",
+    "yaml": "^2.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.1"
+  }
+}
