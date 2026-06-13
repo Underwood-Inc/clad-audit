@@ -27,7 +27,317 @@ clad-audit rules      # list rule ids + default advice
 clad-audit presets    # list audit tier presets
 ```
 
-Optional **consumer** config: `.clad-audit.yaml` in the repo you audit — see [`examples/clad-audit.example.yaml`](./examples/clad-audit.example.yaml).
+No config file required — generic CLAD defaults apply. Add `.clad-audit.yaml` at your repo root when you need import aliases, extra view paths, or project-specific allowlists.
+
+---
+
+## Copy-paste configs
+
+Save any block below as **`.clad-audit.yaml`** in the repository you audit (`--root`). Values **deep-merge** over generic defaults; omit keys you do not need.
+
+<details>
+<summary><strong>1. Zero config</strong> — standard CLAD <code>src/</code> layout</summary>
+
+No file needed. Run from your repo root:
+
+```bash
+clad-audit audit --root .
+clad-audit audit --root . --preset structure
+clad-audit audit --root . --preset full --verbose
+```
+
+Expects tiers under `src/`: `atoms/`, `molecules/`, `organisms/`, `recipes/`, `views/`, `apps/`, `sockets/`, `plugs/`.
+
+</details>
+
+<details>
+<summary><strong>2. Minimal</strong> — path aliases only</summary>
+
+Use when your bundler resolves `$molecules/` etc. but folder layout matches generic CLAD.
+
+```yaml
+# .clad-audit.yaml
+srcRoot: src
+
+importAliases:
+  $atoms/: atoms
+  $molecules/: molecules
+  $organisms/: organisms
+  $recipes/: recipes
+  $views/: views
+  $apps/: apps
+  $sockets/: sockets
+  $plugs/: plugs
+
+analysis:
+  defaultDepth: standard
+```
+
+```bash
+clad-audit audit --root .
+```
+
+</details>
+
+<details>
+<summary><strong>3. Svelte app</strong> — aliases + prop limit + standard depth</summary>
+
+Typical SvelteKit / Vite CLAD repo with runes and `.svelte` views.
+
+```yaml
+# .clad-audit.yaml
+srcRoot: src
+
+importAliases:
+  $atoms/: atoms
+  $molecules/: molecules
+  $organisms/: organisms
+  $recipes/: recipes
+  $views/: views
+  $apps/: apps
+  $sockets/: sockets
+  $plugs/: plugs
+
+analysis:
+  defaultDepth: standard
+  useTsMorph: true
+
+svelteProps:
+  enabled: true
+  maxProps: 4
+  severity: warning
+
+ignoreGlobs:
+  - '**/node_modules/**'
+  - '**/dist/**'
+  - '**/.svelte-kit/**'
+  - '**/coverage/**'
+```
+
+```bash
+clad-audit audit --root . --preset full
+clad-audit audit --root . --preset apps --verbose
+```
+
+</details>
+
+<details>
+<summary><strong>4. React / Vue (TSX)</strong> — markup extensions + extra view folder</summary>
+
+When UI components live outside `src/views/` (e.g. `src/ui/components/`).
+
+```yaml
+# .clad-audit.yaml
+srcRoot: src
+
+importAliases:
+  '@atoms/': atoms
+  '@molecules/': molecules
+  '@organisms/': organisms
+  '@recipes/': recipes
+  '@views/': views
+  '@apps/': apps
+
+views:
+  extensions: ['.tsx', '.jsx', '.vue']
+  extraViewPaths:
+    - ui/components
+
+analysis:
+  defaultDepth: standard
+
+ignoreGlobs:
+  - '**/node_modules/**'
+  - '**/dist/**'
+  - '**/build/**'
+```
+
+```bash
+clad-audit audit --root . --preset structure
+```
+
+</details>
+
+<details>
+<summary><strong>5. Migration / strict pass</strong> — quality signals + tighter limits</summary>
+
+For refactors: enable file-size warnings, Svelte props, and run exhaustive graph rules in CI.
+
+```yaml
+# .clad-audit.yaml
+srcRoot: src
+
+importAliases:
+  $molecules/: molecules
+  $organisms/: organisms
+  $recipes/: recipes
+  $views/: views
+  $apps/: apps
+
+analysis:
+  defaultDepth: exhaustive
+  useTsMorph: true
+  couplingHotspotThreshold: 10
+
+svelteProps:
+  enabled: true
+  maxProps: 4
+
+fileSize:
+  apps:
+    maxLines: 350
+    severity: warning
+  molecules:
+    maxLines: 800
+    severity: warning
+  recipes:
+    maxLines: 600
+    severity: warning
+
+canonAllowlist:
+  enabled: true
+```
+
+```bash
+clad-audit audit --root . --preset exhaustive --report clad-report.md --verbose
+```
+
+</details>
+
+<details>
+<summary><strong>6. Custom tier folder names</strong> — non-standard paths</summary>
+
+When your repo uses different directory names but the same CLAD semantics.
+
+```yaml
+# .clad-audit.yaml
+srcRoot: lib
+
+tiers:
+  atoms: core/atoms
+  molecules: core/molecules
+  organisms: core/organisms
+  recipes: core/recipes
+  views: ui/views
+  apps: ui/apps
+  sockets: ports
+  plugs: adapters
+
+scanGlobs:
+  - '**/*.{ts,tsx,svelte}'
+
+ignoreGlobs:
+  - '**/node_modules/**'
+  - '**/dist/**'
+```
+
+```bash
+clad-audit audit --root .
+```
+
+</details>
+
+<details>
+<summary><strong>7. Extra composition-root allowlist</strong> — project-specific <code>apps/</code> files</summary>
+
+Add basenames that are genuinely composition roots but not in generic defaults.
+
+```yaml
+# .clad-audit.yaml
+srcRoot: src
+
+apps:
+  allowedFilenamePatterns:
+    - '^mount[A-Za-z0-9_-]*\\.ts$'
+    - '^wire[A-Za-z0-9_-]*\\.ts$'
+    - 'AppSession\\.svelte\\.ts$'
+    - '^bootstrap[A-Za-z0-9_-]*\\.ts$'
+    # project-specific composition roots:
+    - '^createMyAppShell\\.ts$'
+    - '^runInitialBoot\\.ts$'
+
+views:
+  extraViewPaths:
+    - ui/components
+```
+
+```bash
+clad-audit audit --root . --preset apps --verbose
+```
+
+</details>
+
+<details>
+<summary><strong>8. <code>package.json</code> scripts</strong> — npm / pnpm / yarn</summary>
+
+```json
+{
+  "scripts": {
+    "clad:audit": "clad-audit audit --root . --preset structure",
+    "clad:full": "clad-audit audit --root . --preset full --verbose",
+    "clad:report": "clad-audit audit --root . --preset exhaustive --report clad-report.md",
+    "clad:wizard": "clad-audit wizard"
+  },
+  "devDependencies": {
+    "@underwoodinc/clad-audit": "^0.3.0"
+  }
+}
+```
+
+Local install (no global):
+
+```bash
+npm install -D @underwoodinc/clad-audit
+npx clad-audit audit --root .
+pnpm clad:audit
+```
+
+</details>
+
+<details>
+<summary><strong>9. GitHub Actions CI</strong> — fail on structure errors</summary>
+
+```yaml
+# .github/workflows/clad-audit.yml
+name: CLAD audit
+
+on:
+  pull_request:
+  push:
+    branches: [master, main]
+
+jobs:
+  clad-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Structure audit (errors only)
+        run: npx clad-audit audit --root . --preset structure --depth standard
+
+      - name: Full report artifact (optional)
+        if: always()
+        run: npx clad-audit audit --root . --preset full --report clad-report.md
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clad-report
+          path: clad-report.md
+```
+
+Pin `@underwoodinc/clad-audit` in `devDependencies` for reproducible CI.
+
+</details>
+
+Full annotated example: [`examples/clad-audit.example.yaml`](./examples/clad-audit.example.yaml).
 
 ---
 
