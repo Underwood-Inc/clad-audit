@@ -31,7 +31,7 @@ const sampleResult = {
 };
 
 describe('formatAuditReport', () => {
-  test('includes finding details without color', () => {
+  test('[NFR-002] includes finding details without color', () => {
     const text = formatAuditReport(sampleResult, { strict: false, colorEnabled: false });
     expect(stripAnsi(text)).toBe(text);
     expect(text).toContain('CLAD audit report');
@@ -42,12 +42,12 @@ describe('formatAuditReport', () => {
     expect(text).toContain('1 warning(s)');
   });
 
-  test('emits ANSI when color enabled', () => {
+  test('[NFR-002] emits ANSI when color enabled', () => {
     const text = formatAuditReport(sampleResult, { strict: true, colorEnabled: true });
     expect(text).not.toBe(stripAnsi(text));
   });
 
-  test('summarizes hidden findings when limited', () => {
+  test('[NFR-002] summarizes hidden findings when limited', () => {
     const text = formatAuditReport(sampleResult, {
       strict: false,
       colorEnabled: false,
@@ -58,7 +58,7 @@ describe('formatAuditReport', () => {
 });
 
 describe('formatRulesCatalog', () => {
-  test('lists rule ids', () => {
+  test('[NFR-002] lists rule ids', () => {
     const text = formatRulesCatalog(
       [{ id: 'demo-rule', description: 'Demo', defaultAdvice: 'Fix it' }],
       false,

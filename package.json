@@ -43,6 +43,10 @@
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "trace:audit": "trace audit --root . --config .traceability.yaml",
+    "trace:report": "trace report --root . --config .traceability.yaml",
+    "trace:scan": "trace scan --root . --config .traceability.yaml",
+    "verify": "npm test && npm run trace:audit",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
@@ -55,6 +59,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.7.4",
+    "@underwoodinc/requirements-tracer": "0.1.4",
     "typescript": "^5.6.2",
     "vitest": "^2.1.1"
   }

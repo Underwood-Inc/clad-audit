@@ -3,7 +3,7 @@ import { defaultCladAuditConfig } from '../motes/defaultConfig.js';
 import { mergeCladAuditConfig } from '../motes/loadConfig.js';
 
 describe('loadConfig', () => {
-  test('merge preserves defaults and overrides tiers', () => {
+  test('[NFR-001] merge preserves defaults and overrides tiers', () => {
     const merged = mergeCladAuditConfig({
       srcRoot: 'lib',
       tiers: { molecules: 'domain' },

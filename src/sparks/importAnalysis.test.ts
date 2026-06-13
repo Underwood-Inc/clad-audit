@@ -7,7 +7,7 @@ import {
 } from './importAnalysis.js';
 
 describe('importAnalysis', () => {
-  test('parseAllImports finds static, dynamic, require, reexport', () => {
+  test('[FR-002] parseAllImports finds static, dynamic, require, reexport', () => {
     const src = `
 import { a } from './a.js';
 export { b } from '../recipes/b.js';
@@ -21,17 +21,17 @@ require('node:fs');
     expect(imports.some((i) => i.kind === 'require')).toBe(true);
   });
 
-  test('stripCommentsAndStrings removes string matches', () => {
+  test('[FR-002] stripCommentsAndStrings removes string matches', () => {
     const stripped = stripCommentsAndStrings(`// $state\nconst t = '$state'`);
     expect(stripped.includes('$state')).toBe(false);
   });
 
-  test('primaryExtension handles compound extensions', () => {
+  test('[FR-002] primaryExtension handles compound extensions', () => {
     expect(primaryExtension('foo.svelte.ts')).toBe('.svelte.ts');
     expect(primaryExtension('Panel.svelte')).toBe('.svelte');
   });
 
-  test('parseSvelteImports reads script blocks', () => {
+  test('[FR-002] parseSvelteImports reads script blocks', () => {
     const src = `<script>
   import Foo from './Foo.svelte';
 </script>

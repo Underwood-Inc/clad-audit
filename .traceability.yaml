@@ -1,0 +1,46 @@
+# Runtime config for @underwoodinc/requirements-tracer (clad-audit repo).
+schema_version: 1
+
+testGlobs:
+  - "src/**/*.test.ts"
+
+exclude:
+  - "**/node_modules/**"
+  - "**/dist/**"
+  - "**/traceability-report/**"
+
+traceIdPattern: "\\[((?:[A-Z][A-Z0-9]*-)+\\d+)(?:,\\s*((?:[A-Z][A-Z0-9]*-)+\\d+))*\\]"
+requireTraceId: error
+
+kinds:
+  FR:
+    label: Functional
+    description: >
+      CLAD violation detection the tool must perform when auditing a consumer repo.
+  NFR:
+    label: Non-functional
+    description: >
+      Product qualities — agnostic defaults, config merge, portable CLI — not CLAD rules themselves.
+  META:
+    label: Meta / tooling
+    description: >
+      Traceability and CI for this package's own development.
+
+jsdocTags:
+  required: []
+  optional:
+    - description
+    - owner
+
+output:
+  reportDir: traceability-report
+  reportEntry: index.html
+  scanJson: traceability-report/scan.json
+  auditJson: traceability-report/audit.json
+
+prComment:
+  newCommentEachRun: true
+  commentTitle: "clad-audit Traceability"
+
+branding:
+  projectName: clad-audit

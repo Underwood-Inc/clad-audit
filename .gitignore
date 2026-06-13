@@ -9,5 +9,4 @@ Thumbs.db
 .idea/
 .vscode/
 *.tsbuildinfo
-.env
-.env.*
+traceability-report/

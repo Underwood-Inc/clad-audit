@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { defaultCladAuditConfig } from '../motes/defaultConfig.js';
 
 describe('defaultCladAuditConfig', () => {
-  test('contains no product-specific filenames or import aliases', () => {
+  test('[NFR-001] contains no product-specific filenames or import aliases', () => {
     const json = JSON.stringify(defaultCladAuditConfig());
     const banned = [
       'mappy',

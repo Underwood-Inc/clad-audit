@@ -1,0 +1,33 @@
+# Requirements traceability for clad-audit.
+name: Traceability
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+concurrency:
+  group: clad-audit-traceability-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  traceability:
+    name: Requirements traceability audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run requirements-tracer action
+        uses: Underwood-Inc/requirements-tracer-action@v0.1.4
+        with:
+          tracer-package: '@underwoodinc/requirements-tracer@0.1.4'
+          artifact-name: traceability-report
+          token: ${{ secrets.GITHUB_TOKEN }}

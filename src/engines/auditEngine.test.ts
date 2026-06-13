@@ -6,7 +6,7 @@ import { auditEngine } from '../engines/auditEngine.js';
 import { mergeCladAuditConfig } from '../motes/loadConfig.js';
 
 describe('auditEngine integration', () => {
-  test('scans fixture tree and reports view-in-app-tier', async () => {
+  test('[FR-001] scans fixture tree and reports view-in-app-tier', async () => {
     const root = mkdtempSync(join(tmpdir(), 'clad-audit-'));
     mkdirSync(join(root, 'src/apps/demo'), { recursive: true });
     writeFileSync(join(root, 'src/apps/demo/mountDemo.ts'), 'export {};\n');

@@ -1,0 +1,106 @@
+# clad-audit requirements registry
+# FR  = CLAD violation detection the tool provides to consumers
+# NFR = product qualities (agnostic config, portable CLI)
+# META = this repo's traceability / CI dogfooding
+schema_version: 1
+
+requirements:
+  FR-001:
+    kind: FR
+    title: Apps-tier placement violations are reported with remediation
+    summary: >
+      Detect composition-root drift in apps/ — non-allowlisted files, view markup,
+      organism runes, and recipe orchestrators — each with scripted fix steps.
+    owner: clad-audit
+    status: active
+    tags: [rules, apps]
+
+  FR-002:
+    kind: FR
+    title: Import-boundary violations are reported for static and dynamic imports
+    summary: >
+      Enforce inward CLAD dependency direction via path resolution, static imports,
+      dynamic import(), require(), and re-exports (depth-dependent).
+    owner: clad-audit
+    status: active
+    tags: [rules, imports]
+
+  FR-003:
+    kind: FR
+    title: Tier impurity is reported in configured pure tiers
+    summary: >
+      Flag framework/rune/adapter leakage in molecules and sockets using
+      comment-aware matching at standard+ depth.
+    owner: clad-audit
+    status: active
+    tags: [rules, impurity]
+
+  FR-004:
+    kind: FR
+    title: Misplaced module shapes are reported outside canonical tier folders
+    summary: >
+      At standard+ depth, flag view/organism/recipe filename shapes in wrong tiers
+      and files under src/ that match no configured tier folder.
+    owner: clad-audit
+    status: active
+    tags: [rules, placement]
+
+  FR-005:
+    kind: FR
+    title: Canon allowlist drift is reported as a warning
+    summary: >
+      Parallel *_ALLOWLIST constants outside table-driven *Catalog.ts molecules
+      are flagged with consolidation advice.
+    owner: clad-audit
+    status: active
+    tags: [rules, canon]
+
+  FR-006:
+    kind: FR
+    title: Svelte prop excess is reported when enabled by consumer config
+    summary: >
+      Optional rule (off in generic defaults). When enabled in .clad-audit.yaml,
+      warn on components exceeding maxProps destructured from $props().
+    owner: clad-audit
+    status: active
+    tags: [rules, svelte]
+
+  FR-007:
+    kind: FR
+    title: Structural quality signals are reported without failing the default audit
+    summary: >
+      Oversized files, import cycles, multi-tier barrel indexes, and high fan-in
+      modules — mostly warnings/info for migration planning.
+    owner: clad-audit
+    status: active
+    tags: [rules, quality]
+
+  NFR-001:
+    kind: NFR
+    title: Generic defaults with consumer config overlay
+    summary: >
+      Shipped defaults match generic CLAD layout only (no product filenames).
+      Consumer .clad-audit.yaml deep-merges over defaults at audit time.
+    owner: clad-audit
+    status: active
+    tags: [config]
+
+  NFR-002:
+    kind: NFR
+    title: Cross-platform CLI and audit presets
+    summary: >
+      Node.js CLI with colorized TTY output, JSON/markdown reports, interactive
+      wizard, and named presets (apps, structure, full, exhaustive).
+    owner: clad-audit
+    status: active
+    tags: [cli]
+
+  META-001:
+    kind: META
+    title: Requirements-tracer coverage on this package's Vitest suite
+    summary: >
+      Every test carries a registry trace ID; CI runs trace audit via
+      @underwoodinc/requirements-tracer.
+    owner: clad-audit
+    status: active
+    tags: [traceability]

@@ -8,22 +8,22 @@ describe('terminalStyle', () => {
     process.env = { ...envBackup };
   });
 
-  test('resolveColorEnabled respects NO_COLOR', () => {
+  test('[NFR-002] resolveColorEnabled respects NO_COLOR', () => {
     process.env.NO_COLOR = '1';
     expect(resolveColorEnabled()).toBe(false);
   });
 
-  test('resolveColorEnabled explicit false wins', () => {
+  test('[NFR-002] resolveColorEnabled explicit false wins', () => {
     process.env.FORCE_COLOR = '1';
     expect(resolveColorEnabled(false)).toBe(false);
   });
 
-  test('createStyle pass-through when disabled', () => {
+  test('[NFR-002] createStyle pass-through when disabled', () => {
     const style = createStyle(false);
     expect(style.error('x')).toBe('x');
   });
 
-  test('createStyle colors when enabled', () => {
+  test('[NFR-002] createStyle colors when enabled', () => {
     const style = createStyle(true);
     expect(stripAnsi(style.error('x'))).toBe('x');
     expect(style.error('x')).not.toBe('x');
