@@ -1,6 +1,6 @@
 {
   "name": "@underwoodinc/clad-audit",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Agnostic CLAD tier auditor with deep static analysis and scripted remediation plans.",
   "type": "module",
   "license": "MIT",
@@ -47,7 +47,8 @@
     "trace:report": "trace report --root . --config .traceability.yaml",
     "trace:scan": "trace scan --root . --config .traceability.yaml",
     "verify": "npm test && npm run trace:audit",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "prepare": "husky"
   },
   "dependencies": {
     "@inquirer/prompts": "^8.5.2",
@@ -58,8 +59,11 @@
     "yaml": "^2.5.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
     "@types/node": "^22.7.4",
     "@underwoodinc/requirements-tracer": "0.1.4",
+    "husky": "^9.1.7",
     "typescript": "^5.6.2",
     "vitest": "^2.1.1"
   }
