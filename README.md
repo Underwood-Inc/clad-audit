@@ -1,5 +1,7 @@
 # @underwoodinc/clad-audit
 
+<img width="3840" height="2160" alt="image" src="https://github.com/user-attachments/assets/c04e6e35-755d-4559-a588-ae248d8c6737" />
+
 Standalone, **repository-agnostic** [CLAD](./docs/philosophy/clad.md) auditor. Node.js CLI — **PowerShell, Linux, macOS**.
 
 **Repository:** https://github.com/Underwood-Inc/clad-audit  
