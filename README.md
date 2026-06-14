@@ -542,16 +542,19 @@ Works in PowerShell, bash, and zsh — no shell scripts required.
 <details>
 <summary><strong>VS Code / Cursor extension</strong> — inline diagnostics</summary>
 
-The workspace ships a thin editor extension at [`tools/clad-audit-vscode/`](../clad-audit-vscode/) (`underwoodinc.clad-audit`). It runs the same `runAudit` engine in-process and publishes findings as Problems / inline squiggles.
+The editor extension lives in its own repository: [`Underwood-Inc/clad-audit-vscode`](https://github.com/Underwood-Inc/clad-audit-vscode) (`underwoodinc.clad-audit` on the Marketplace). It runs the same `runAudit` engine in-process and publishes findings as Problems / inline squiggles.
 
 ```powershell
-pnpm pack:clad-audit-vscode
-code --install-extension tools/clad-audit-vscode/clad-audit-vscode.vsix
+git clone https://github.com/Underwood-Inc/clad-audit-vscode.git
+cd clad-audit-vscode
+npm install
+npm run package:vsix
+code --install-extension clad-audit-vscode.vsix
 ```
 
-The VSIX bundles the full auditor (no separate CLI install). Cursor: `cursor --install-extension tools/clad-audit-vscode/clad-audit-vscode.vsix`.
+The VSIX bundles the full auditor (no separate CLI install). Cursor: `cursor --install-extension clad-audit-vscode.vsix`.
 
-Install: open `tools/clad-audit-vscode` and press **F5** (Extension Development Host), or see that folder's README for VSIX install. Command palette: **CLAD: Audit Workspace**.
+Install from the Marketplace or build from the extension repo above. Command palette: **CLAD: Audit Workspace**.
 
 Settings prefix: `cladAudit.*` (enable, runOnSave, depth, debounce).
 
