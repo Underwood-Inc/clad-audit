@@ -1,6 +1,6 @@
 # Social posts — CLAD Audit launch
 
-**@underwoodinc/clad-audit** npm **0.5.2** · **CLAD Audit** VS Code / Cursor extension  
+**@underwoodinc/clad-audit** npm **0.5.3** · **CLAD Audit** VS Code / Cursor extension  
 **Links:** [npm](https://www.npmjs.com/package/@underwoodinc/clad-audit) · [Marketplace](https://marketplace.visualstudio.com/items?itemName=underwoodinc.clad-audit-vscode) · [GitHub](https://github.com/Underwood-Inc/clad-audit)
 
 ---
@@ -84,7 +84,7 @@ Extension → https://marketplace.visualstudio.com/items?itemName=underwoodinc.c
 
 **What is CLAD?** Composable Layered Agnostic Design — small named tiers (atoms → molecules → organisms → recipes → views → apps) wired through explicit boundaries. CLAD Audit enforces that structure in **your** repo without importing your app code.
 
-**npm CLI** (`@underwoodinc/clad-audit` **0.5.2**)
+**npm CLI** (`@underwoodinc/clad-audit` **0.5.3**)
 - `clad-audit audit --root .` — no config required on generic `src/` layouts
 - **16 rules** — `import-boundary`, `tier-impurity`, apps-tier allowlist, misplaced shapes, `canon-parallel-allowlist`, Svelte props, import cycles, coupling hotspots
 - Depth: `quick` · `standard` · `deep` · `exhaustive` — presets: `structure`, `full`, `exhaustive`
