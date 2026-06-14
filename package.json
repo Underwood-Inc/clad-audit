@@ -1,6 +1,6 @@
 {
   "name": "@underwoodinc/clad-audit",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Agnostic CLAD tier auditor with deep static analysis and scripted remediation plans.",
   "type": "module",
   "license": "MIT",
