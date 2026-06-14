@@ -65,7 +65,9 @@ export function extractFeatureSegment(relativePath: string, config: CladAuditCon
   }
   const rest = normalized.slice(prefix.length);
   const segment = rest.split('/')[0];
-  return segment && segment.length > 0 ? segment : 'shared';
+  if (!segment || segment.length === 0) return 'shared';
+  if (segment.includes('.')) return 'shared';
+  return segment;
 }
 
 function detectTierFromPath(normalized: string, config: CladAuditConfig): CladTierId {

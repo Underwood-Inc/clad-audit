@@ -30,33 +30,36 @@ export const unknownTierFileRule: CladRule = {
       if (file.basename.endsWith('.test.ts') || file.basename.endsWith('.spec.ts')) continue;
 
       findings.push(
-        enrichFinding({
-          rule: 'unknown-tier-file',
-          severity: 'warning',
-          filePath: file.relativePath,
-          tier: 'unknown',
-          message: `File is under ${srcPrefix}/ but not in a configured CLAD tier path.`,
-          advice: unknownTierFileRule.defaultAdvice,
-          reasoning: reasoningLines(
-            `Path "${file.relativePath}" did not match any config.tiers folder prefix.`,
-            'Unknown-tier files bypass most placement and boundary rules.',
-          ),
-          remediation: {
-            summary: 'Assign a CLAD tier folder',
-            steps: [
-              {
-                action: 'move',
-                summary: 'Move to the tier matching the file’s responsibility',
-                details:
-                  'Pure logic → molecules/, UI → views/, runes → organisms/, orchestration → recipes/, mount → apps/.',
-              },
-              {
-                action: 'configure',
-                summary: 'Or extend config.tiers / views.extraViewPaths if layout is intentional',
-              },
-            ],
+        enrichFinding(
+          {
+            rule: 'unknown-tier-file',
+            severity: 'warning',
+            filePath: file.relativePath,
+            tier: 'unknown',
+            message: `File is under ${srcPrefix}/ but not in a configured CLAD tier path.`,
+            advice: unknownTierFileRule.defaultAdvice,
+            reasoning: reasoningLines(
+              `Path "${file.relativePath}" did not match any config.tiers folder prefix.`,
+              'Unknown-tier files bypass most placement and boundary rules.',
+            ),
+            remediation: {
+              summary: 'Assign a CLAD tier folder',
+              steps: [
+                {
+                  action: 'move',
+                  summary: 'Move to the tier matching the file’s responsibility',
+                  details:
+                    'Pure logic → molecules/, UI → views/, runes → organisms/, orchestration → recipes/, mount → apps/.',
+                },
+                {
+                  action: 'configure',
+                  summary: 'Or extend config.tiers / views.extraViewPaths if layout is intentional',
+                },
+              ],
+            },
           },
-        }),
+          file,
+        ),
       );
     }
     return findings;
@@ -83,27 +86,30 @@ export const misplacedTierShapeRule: CladRule = {
 
       const target = suggestTargetPath(file, expected, ctx.config);
       findings.push(
-        enrichFinding({
-          rule: 'misplaced-tier-shape',
-          severity: 'error',
-          filePath: file.relativePath,
-          tier: file.tier,
-          expectedTier: expected,
-          message: `Shape "${shape}" belongs in ${expected} tier, found in ${file.tier}.`,
-          advice: misplacedTierShapeRule.defaultAdvice,
-          reasoning: reasoningLines(
-            `Basename/extension "${file.basename}" matches ${shape} heuristics.`,
-            `Folder placement resolves to tier "${file.tier}".`,
-            `CLAD expects ${shape} modules under ${expected}/.`,
-          ),
-          remediation: planMoveToTier(
-            file,
-            expected,
-            ctx.config,
-            `Relocate ${shape} from ${file.tier} to ${expected}`,
-          ),
-          relatedPaths: [target],
-        }),
+        enrichFinding(
+          {
+            rule: 'misplaced-tier-shape',
+            severity: 'error',
+            filePath: file.relativePath,
+            tier: file.tier,
+            expectedTier: expected,
+            message: `Shape "${shape}" belongs in ${expected} tier, found in ${file.tier}.`,
+            advice: misplacedTierShapeRule.defaultAdvice,
+            reasoning: reasoningLines(
+              `Basename/extension "${file.basename}" matches ${shape} heuristics.`,
+              `Folder placement resolves to tier "${file.tier}".`,
+              `CLAD expects ${shape} modules under ${expected}/.`,
+            ),
+            remediation: planMoveToTier(
+              file,
+              expected,
+              ctx.config,
+              `Relocate ${shape} from ${file.tier} to ${expected}`,
+            ),
+            relatedPaths: [target],
+          },
+          file,
+        ),
       );
     }
     return findings;
@@ -129,28 +135,31 @@ export const importReexportBoundaryRule: CladRule = {
       if (!file) continue;
 
       findings.push(
-        enrichFinding({
-          rule: 'import-reexport-boundary',
-          severity: 'error',
-          filePath: edge.fromPath,
-          line: edge.line,
-          tier: edge.fromTier,
-          expectedTier: edge.toTier,
-          importSpecifier: edge.specifier,
-          message: `${edge.fromTier} re-exports from forbidden ${edge.toTier} ("${edge.specifier}").`,
-          advice: importReexportBoundaryRule.defaultAdvice,
-          reasoning: reasoningLines(
-            'Re-exports inherit dependency direction — consumers see the forbidden tier.',
-            `Edge kind: ${edge.kind}, line ${edge.line}.`,
-          ),
-          remediation: planImportBoundaryFix(
-            file,
-            edge.fromTier,
-            edge.toTier,
-            edge.specifier,
-            ctx.config,
-          ),
-        }),
+        enrichFinding(
+          {
+            rule: 'import-reexport-boundary',
+            severity: 'error',
+            filePath: edge.fromPath,
+            line: edge.line,
+            tier: edge.fromTier,
+            expectedTier: edge.toTier,
+            importSpecifier: edge.specifier,
+            message: `${edge.fromTier} re-exports from forbidden ${edge.toTier} ("${edge.specifier}").`,
+            advice: importReexportBoundaryRule.defaultAdvice,
+            reasoning: reasoningLines(
+              'Re-exports inherit dependency direction — consumers see the forbidden tier.',
+              `Edge kind: ${edge.kind}, line ${edge.line}.`,
+            ),
+            remediation: planImportBoundaryFix(
+              file,
+              edge.fromTier,
+              edge.toTier,
+              edge.specifier,
+              ctx.config,
+            ),
+          },
+          file,
+        ),
       );
     }
     return findings;
@@ -176,28 +185,31 @@ export const importDynamicBoundaryRule: CladRule = {
       if (!file) continue;
 
       findings.push(
-        enrichFinding({
-          rule: 'import-dynamic-boundary',
-          severity: 'error',
-          filePath: edge.fromPath,
-          line: edge.line,
-          tier: edge.fromTier,
-          expectedTier: edge.toTier,
-          importSpecifier: edge.specifier,
-          message: `${edge.fromTier} uses ${edge.kind}() to reach forbidden ${edge.toTier} ("${edge.specifier}").`,
-          advice: importDynamicBoundaryRule.defaultAdvice,
-          reasoning: reasoningLines(
-            'Dynamic imports are not exempt from CLAD inward dependency rules.',
-            `Runtime load would still couple ${edge.fromTier} → ${edge.toTier}.`,
-          ),
-          remediation: planImportBoundaryFix(
-            file,
-            edge.fromTier,
-            edge.toTier,
-            edge.specifier,
-            ctx.config,
-          ),
-        }),
+        enrichFinding(
+          {
+            rule: 'import-dynamic-boundary',
+            severity: 'error',
+            filePath: edge.fromPath,
+            line: edge.line,
+            tier: edge.fromTier,
+            expectedTier: edge.toTier,
+            importSpecifier: edge.specifier,
+            message: `${edge.fromTier} uses ${edge.kind}() to reach forbidden ${edge.toTier} ("${edge.specifier}").`,
+            advice: importDynamicBoundaryRule.defaultAdvice,
+            reasoning: reasoningLines(
+              'Dynamic imports are not exempt from CLAD inward dependency rules.',
+              `Runtime load would still couple ${edge.fromTier} → ${edge.toTier}.`,
+            ),
+            remediation: planImportBoundaryFix(
+              file,
+              edge.fromTier,
+              edge.toTier,
+              edge.specifier,
+              ctx.config,
+            ),
+          },
+          file,
+        ),
       );
     }
     return findings;
@@ -222,34 +234,38 @@ export const importCycleRule: CladRule = {
       const anchor = cycle[0];
       if (!anchor) continue;
       const file = ctx.analysis.fileByPath.get(anchor);
+      if (!file) continue;
       findings.push(
-        enrichFinding({
-          rule: 'import-cycle',
-          severity: 'warning',
-          filePath: anchor,
-          tier: file?.tier,
-          message: `Import cycle detected (${cycle.length} modules): ${cycle.join(' → ')}`,
-          advice: importCycleRule.defaultAdvice,
-          reasoning: reasoningLines(
-            'Cycles often indicate mixed tier responsibilities in one dependency loop.',
-            'Prefer acyclic graphs aligned with inward CLAD flow.',
-          ),
-          relatedPaths: cycle,
-          remediation: {
-            summary: 'Break the import cycle at the highest-tier module',
-            steps: [
-              {
-                action: 'extract',
-                summary: 'Move shared types/constants to molecules/',
-                details: 'Both sides of the cycle import the extracted module inward.',
-              },
-              {
-                action: 'refactor',
-                summary: 'Replace mutual imports with a Socket + Plug pair',
-              },
-            ],
+        enrichFinding(
+          {
+            rule: 'import-cycle',
+            severity: 'warning',
+            filePath: anchor,
+            tier: file?.tier,
+            message: `Import cycle detected (${cycle.length} modules): ${cycle.join(' → ')}`,
+            advice: importCycleRule.defaultAdvice,
+            reasoning: reasoningLines(
+              'Cycles often indicate mixed tier responsibilities in one dependency loop.',
+              'Prefer acyclic graphs aligned with inward CLAD flow.',
+            ),
+            relatedPaths: cycle,
+            remediation: {
+              summary: 'Break the import cycle at the highest-tier module',
+              steps: [
+                {
+                  action: 'extract',
+                  summary: 'Move shared types/constants to molecules/',
+                  details: 'Both sides of the cycle import the extracted module inward.',
+                },
+                {
+                  action: 'refactor',
+                  summary: 'Replace mutual imports with a Socket + Plug pair',
+                },
+              ],
+            },
           },
-        }),
+          file,
+        ),
       );
     }
     return findings;
@@ -279,27 +295,30 @@ export const barrelReexportSmellRule: CladRule = {
       if (tiers.size < 2) continue;
       const file = ctx.analysis.fileByPath.get(filePath);
       findings.push(
-        enrichFinding({
-          rule: 'barrel-reexport-smell',
-          severity: 'info',
-          filePath,
-          tier: file?.tier,
-          message: `Barrel re-exports span ${tiers.size} CLAD tiers: ${[...tiers].join(', ')}`,
-          advice: barrelReexportSmellRule.defaultAdvice,
-          reasoning: reasoningLines(
-            'Multi-tier barrels make dependency direction hard to audit.',
-            'Consumers may accidentally import upward through the barrel.',
-          ),
-          remediation: {
-            summary: 'Split barrel by tier or remove cross-tier re-exports',
-            steps: [
-              {
-                action: 'split',
-                summary: 'Create per-tier index files or import directly from source modules',
-              },
-            ],
+        enrichFinding(
+          {
+            rule: 'barrel-reexport-smell',
+            severity: 'info',
+            filePath,
+            tier: file?.tier,
+            message: `Barrel re-exports span ${tiers.size} CLAD tiers: ${[...tiers].join(', ')}`,
+            advice: barrelReexportSmellRule.defaultAdvice,
+            reasoning: reasoningLines(
+              'Multi-tier barrels make dependency direction hard to audit.',
+              'Consumers may accidentally import upward through the barrel.',
+            ),
+            remediation: {
+              summary: 'Split barrel by tier or remove cross-tier re-exports',
+              steps: [
+                {
+                  action: 'split',
+                  summary: 'Create per-tier index files or import directly from source modules',
+                },
+              ],
+            },
           },
-        }),
+          file,
+        ),
       );
     }
     return findings;
@@ -324,31 +343,34 @@ export const tierCouplingHotspotRule: CladRule = {
       if (!file) continue;
 
       findings.push(
-        enrichFinding({
-          rule: 'tier-coupling-hotspot',
-          severity: 'info',
-          filePath: path,
-          tier: file.tier,
-          message: `Module imported by ${count} other modules (threshold ${threshold}).`,
-          advice: tierCouplingHotspotRule.defaultAdvice,
-          reasoning: reasoningLines(
-            'High fan-in often correlates with mixed concerns or missing tier splits.',
-            'Review during CLAD migration — not always a violation.',
-          ),
-          remediation: {
-            summary: 'Audit whether this file mixes tiers or should be split',
-            steps: [
-              {
-                action: 'split',
-                summary: 'Separate pure logic, UI, and orchestration into tier folders',
-              },
-              {
-                action: 'document',
-                summary: 'If intentionally shared, document as Canon Molecule',
-              },
-            ],
+        enrichFinding(
+          {
+            rule: 'tier-coupling-hotspot',
+            severity: 'info',
+            filePath: path,
+            tier: file.tier,
+            message: `Module imported by ${count} other modules (threshold ${threshold}).`,
+            advice: tierCouplingHotspotRule.defaultAdvice,
+            reasoning: reasoningLines(
+              'High fan-in often correlates with mixed concerns or missing tier splits.',
+              'Review during CLAD migration — not always a violation.',
+            ),
+            remediation: {
+              summary: 'Audit whether this file mixes tiers or should be split',
+              steps: [
+                {
+                  action: 'split',
+                  summary: 'Separate pure logic, UI, and orchestration into tier folders',
+                },
+                {
+                  action: 'document',
+                  summary: 'If intentionally shared, document as Canon Molecule',
+                },
+              ],
+            },
           },
-        }),
+          file,
+        ),
       );
     }
     return findings;

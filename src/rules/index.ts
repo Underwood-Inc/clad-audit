@@ -16,6 +16,7 @@ import {
   parseStaticImports,
   stripCommentsAndStrings,
 } from '../sparks/importAnalysis.js';
+import { rangeForMatchIndex } from '../sparks/findingLocation.js';
 import { matchesAnyPattern, resolveImportTier } from '../sparks/pathTier.js';
 import { suggestTargetPath } from '../sparks/tierShape.js';
 import { DEEP_CLAD_RULES } from './deepRules.js';
@@ -38,22 +39,25 @@ export const appTierAllowlistRule: CladRule = {
       const shapeTarget = suggestTargetPath(file, 'molecules', ctx.config);
 
       findings.push(
-        enrichFinding({
-          rule: 'app-tier-allowlist',
-          severity: 'error',
-          filePath: file.relativePath,
-          tier: 'apps',
-          message: `App-tier file "${file.basename}" is not a recognized composition-root shape.`,
-          advice: `${appTierAllowlistRule.defaultAdvice} Or add a project-specific exception in .clad-audit.yaml → apps.allowedFilenamePatterns if this file is genuinely part of the composition root.`,
-          reasoning: reasoningLines(
-            'apps/ is reserved for composition roots: mount*, wire*, *AppSession, *Bridge, bootstrap.',
-            `Basename "${file.basename}" matches none of the allowedFilenamePatterns.`,
-          ),
-          remediation: {
-            ...remediation,
-            suggestedTargetPath: remediation.suggestedTargetPath ?? shapeTarget,
+        enrichFinding(
+          {
+            rule: 'app-tier-allowlist',
+            severity: 'error',
+            filePath: file.relativePath,
+            tier: 'apps',
+            message: `App-tier file "${file.basename}" is not a recognized composition-root shape.`,
+            advice: `${appTierAllowlistRule.defaultAdvice} Or add a project-specific exception in .clad-audit.yaml → apps.allowedFilenamePatterns if this file is genuinely part of the composition root.`,
+            reasoning: reasoningLines(
+              'apps/ is reserved for composition roots: mount*, wire*, *AppSession, *Bridge, bootstrap.',
+              `Basename "${file.basename}" matches none of the allowedFilenamePatterns.`,
+            ),
+            remediation: {
+              ...remediation,
+              suggestedTargetPath: remediation.suggestedTargetPath ?? shapeTarget,
+            },
           },
-        }),
+          file,
+        ),
       );
     }
     return findings;
@@ -74,20 +78,23 @@ export const viewInAppTierRule: CladRule = {
       if (file.extension === '.svelte.ts') continue;
 
       findings.push(
-        enrichFinding({
-          rule: 'view-in-app-tier',
-          severity: 'error',
-          filePath: file.relativePath,
-          tier: 'apps',
-          expectedTier: 'views',
-          message: `View markup (${file.extension}) found in App tier.`,
-          advice: viewInAppTierRule.defaultAdvice,
-          reasoning: reasoningLines(
-            'Views are user-facing markup; apps/ only wires them into the shell.',
-            `Extension ${file.extension} is listed in forbiddenInApps.extensions.`,
-          ),
-          remediation: planMoveToTier(file, 'views', ctx.config, 'Move view markup out of apps/'),
-        }),
+        enrichFinding(
+          {
+            rule: 'view-in-app-tier',
+            severity: 'error',
+            filePath: file.relativePath,
+            tier: 'apps',
+            expectedTier: 'views',
+            message: `View markup (${file.extension}) found in App tier.`,
+            advice: viewInAppTierRule.defaultAdvice,
+            reasoning: reasoningLines(
+              'Views are user-facing markup; apps/ only wires them into the shell.',
+              `Extension ${file.extension} is listed in forbiddenInApps.extensions.`,
+            ),
+            remediation: planMoveToTier(file, 'views', ctx.config, 'Move view markup out of apps/'),
+          },
+          file,
+        ),
       );
     }
     return findings;
@@ -108,20 +115,23 @@ export const organismInAppTierRule: CladRule = {
       if (matchesAnyPattern(file.basename, ctx.config.organisms.allowedExceptions)) continue;
 
       findings.push(
-        enrichFinding({
-          rule: 'organism-in-app-tier',
-          severity: 'error',
-          filePath: file.relativePath,
-          tier: 'apps',
-          expectedTier: 'organisms',
-          message: `Organism-shaped module "${file.basename}" found in App tier.`,
-          advice: organismInAppTierRule.defaultAdvice,
-          reasoning: reasoningLines(
-            'Organisms compose reactive session state (*Rune.svelte.ts, *Session.svelte.ts).',
-            'App tier should import organisms — not host them.',
-          ),
-          remediation: planMoveToTier(file, 'organisms', ctx.config, 'Move session runes to organisms/'),
-        }),
+        enrichFinding(
+          {
+            rule: 'organism-in-app-tier',
+            severity: 'error',
+            filePath: file.relativePath,
+            tier: 'apps',
+            expectedTier: 'organisms',
+            message: `Organism-shaped module "${file.basename}" found in App tier.`,
+            advice: organismInAppTierRule.defaultAdvice,
+            reasoning: reasoningLines(
+              'Organisms compose reactive session state (*Rune.svelte.ts, *Session.svelte.ts).',
+              'App tier should import organisms — not host them.',
+            ),
+            remediation: planMoveToTier(file, 'organisms', ctx.config, 'Move session runes to organisms/'),
+          },
+          file,
+        ),
       );
     }
     return findings;
@@ -142,20 +152,23 @@ export const recipeInAppTierRule: CladRule = {
       if (!matchesAnyPattern(file.basename, ctx.config.recipes.filenamePatterns)) continue;
 
       findings.push(
-        enrichFinding({
-          rule: 'recipe-in-app-tier',
-          severity: 'error',
-          filePath: file.relativePath,
-          tier: 'apps',
-          expectedTier: 'recipes',
-          message: `Recipe-shaped orchestrator "${file.basename}" found in App tier.`,
-          advice: recipeInAppTierRule.defaultAdvice,
-          reasoning: reasoningLines(
-            'Recipes register paints, wire subsystems, and orchestrate molecules/organisms.',
-            `Basename matches recipes.filenamePatterns.`,
-          ),
-          remediation: planMoveToTier(file, 'recipes', ctx.config, 'Move orchestration to recipes/'),
-        }),
+        enrichFinding(
+          {
+            rule: 'recipe-in-app-tier',
+            severity: 'error',
+            filePath: file.relativePath,
+            tier: 'apps',
+            expectedTier: 'recipes',
+            message: `Recipe-shaped orchestrator "${file.basename}" found in App tier.`,
+            advice: recipeInAppTierRule.defaultAdvice,
+            reasoning: reasoningLines(
+              'Recipes register paints, wire subsystems, and orchestrate molecules/organisms.',
+              `Basename matches recipes.filenamePatterns.`,
+            ),
+            remediation: planMoveToTier(file, 'recipes', ctx.config, 'Move orchestration to recipes/'),
+          },
+          file,
+        ),
       );
     }
     return findings;
@@ -193,22 +206,25 @@ function staticImportViolations(ctx: RuleContext, file: RuleContext['files'][0])
     if (!forbidden.includes(targetTier)) continue;
 
     findings.push(
-      enrichFinding({
-        rule: 'import-boundary',
-        severity: 'error',
-        filePath: file.relativePath,
-        line,
-        tier: file.tier,
-        expectedTier: targetTier,
-        importSpecifier: specifier,
-        message: `${file.tier} must not import from ${targetTier} ("${specifier}").`,
-        advice: importBoundaryRule.defaultAdvice,
-        reasoning: reasoningLines(
-          `Import boundary matrix forbids ${file.tier} → ${targetTier}.`,
-          'CLAD dependency flow is inward: outer tiers may depend on inner tiers, not vice versa.',
-        ),
-        remediation: planImportBoundaryFix(file, file.tier, targetTier, specifier, ctx.config),
-      }),
+      enrichFinding(
+        {
+          rule: 'import-boundary',
+          severity: 'error',
+          filePath: file.relativePath,
+          line,
+          tier: file.tier,
+          expectedTier: targetTier,
+          importSpecifier: specifier,
+          message: `${file.tier} must not import from ${targetTier} ("${specifier}").`,
+          advice: importBoundaryRule.defaultAdvice,
+          reasoning: reasoningLines(
+            `Import boundary matrix forbids ${file.tier} → ${targetTier}.`,
+            'CLAD dependency flow is inward: outer tiers may depend on inner tiers, not vice versa.',
+          ),
+          remediation: planImportBoundaryFix(file, file.tier, targetTier, specifier, ctx.config),
+        },
+        file,
+      ),
     );
   }
   return findings;
@@ -250,22 +266,25 @@ export const tierImpurityRule: CladRule = {
         if (scan.includes(sub)) {
           const line = firstMatchingLine(file.content, (line) => line.includes(sub), useStripped);
           findings.push(
-            enrichFinding({
-              rule: 'tier-impurity',
-              severity: 'error',
-              filePath: file.relativePath,
-              line,
-              tier: file.tier,
-              message: `${file.tier} tier references forbidden import/content "${sub}".`,
-              advice: tierImpurityRule.defaultAdvice,
-              reasoning: reasoningLines(
-                useStripped
-                  ? 'Match found in code (comments/strings stripped at standard+ depth).'
-                  : 'Match found in file content.',
-                `${file.tier} must remain framework-agnostic per tierImpurity config.`,
-              ),
-              remediation: planTierImpurityFix(file, sub),
-            }),
+            enrichFinding(
+              {
+                rule: 'tier-impurity',
+                severity: 'error',
+                filePath: file.relativePath,
+                line,
+                tier: file.tier,
+                message: `${file.tier} tier references forbidden import/content "${sub}".`,
+                advice: tierImpurityRule.defaultAdvice,
+                reasoning: reasoningLines(
+                  useStripped
+                    ? 'Match found in code (comments/strings stripped at standard+ depth).'
+                    : 'Match found in file content.',
+                  `${file.tier} must remain framework-agnostic per tierImpurity config.`,
+                ),
+                remediation: planTierImpurityFix(file, sub),
+              },
+              file,
+            ),
           );
           break;
         }
@@ -275,17 +294,20 @@ export const tierImpurityRule: CladRule = {
         if (re.test(scan)) {
           const line = firstMatchingLine(file.content, (line) => re.test(line), useStripped);
           findings.push(
-            enrichFinding({
-              rule: 'tier-impurity',
-              severity: 'error',
-              filePath: file.relativePath,
-              line,
-              tier: file.tier,
-              message: `${file.tier} tier contains forbidden reactive/framework pattern /${pattern}/.`,
-              advice: tierImpurityRule.defaultAdvice,
-              reasoning: reasoningLines(`Pattern /${pattern}/ matched in ${file.tier} tier.`),
-              remediation: planTierImpurityFix(file, pattern),
-            }),
+            enrichFinding(
+              {
+                rule: 'tier-impurity',
+                severity: 'error',
+                filePath: file.relativePath,
+                line,
+                tier: file.tier,
+                message: `${file.tier} tier contains forbidden reactive/framework pattern /${pattern}/.`,
+                advice: tierImpurityRule.defaultAdvice,
+                reasoning: reasoningLines(`Pattern /${pattern}/ matched in ${file.tier} tier.`),
+                remediation: planTierImpurityFix(file, pattern),
+              },
+              file,
+            ),
           );
           break;
         }
@@ -316,20 +338,29 @@ export const canonParallelAllowlistRule: CladRule = {
       const matches = [...file.content.matchAll(allowlistRe)];
       for (const match of matches) {
         const constName = match[1] ?? 'ALLOWLIST';
+        const at = match.index ?? 0;
+        const loc = rangeForMatchIndex(file.content, at, match[0].length);
         findings.push(
-          enrichFinding({
-            rule: 'canon-parallel-allowlist',
-            severity: 'warning',
-            filePath: file.relativePath,
-            tier: 'molecules',
-            message: `Parallel allowlist constant "${constName}" outside a Catalog module.`,
-            advice: canonParallelAllowlistRule.defaultAdvice,
-            reasoning: reasoningLines(
-              'Canon Molecules use one table-driven Catalog as source of truth.',
-              `Constant name matches allowlistNamePattern; file is not a Catalog module.`,
-            ),
-            remediation: planCanonAllowlistFix(file, constName),
-          }),
+          enrichFinding(
+            {
+              rule: 'canon-parallel-allowlist',
+              severity: 'warning',
+              filePath: file.relativePath,
+              line: loc.line,
+              column: loc.column,
+              endLine: loc.endLine,
+              endColumn: loc.endColumn,
+              tier: 'molecules',
+              message: `Parallel allowlist constant "${constName}" outside a Catalog module.`,
+              advice: canonParallelAllowlistRule.defaultAdvice,
+              reasoning: reasoningLines(
+                'Canon Molecules use one table-driven Catalog as source of truth.',
+                `Constant name matches allowlistNamePattern; file is not a Catalog module.`,
+              ),
+              remediation: planCanonAllowlistFix(file, constName),
+            },
+            file,
+          ),
         );
       }
     }
@@ -351,19 +382,22 @@ export const fileSizeTierRule: CladRule = {
       if (file.lineCount <= limit.maxLines) continue;
 
       findings.push(
-        enrichFinding({
-          rule: 'file-size-tier',
-          severity: limit.severity,
-          filePath: file.relativePath,
-          tier: file.tier,
-          message: `${file.tier} file has ${file.lineCount} lines (limit ${limit.maxLines}).`,
-          advice: fileSizeTierRule.defaultAdvice,
-          reasoning: reasoningLines(
-            'Large files often mix tiers — a smell for CLAD decomposition.',
-            `${file.lineCount} lines exceeds fileSize.${file.tier}.maxLines (${limit.maxLines}).`,
-          ),
-          remediation: planFileSizeSplit(file, limit.maxLines),
-        }),
+        enrichFinding(
+          {
+            rule: 'file-size-tier',
+            severity: limit.severity,
+            filePath: file.relativePath,
+            tier: file.tier,
+            message: `${file.tier} file has ${file.lineCount} lines (limit ${limit.maxLines}).`,
+            advice: fileSizeTierRule.defaultAdvice,
+            reasoning: reasoningLines(
+              'Large files often mix tiers — a smell for CLAD decomposition.',
+              `${file.lineCount} lines exceeds fileSize.${file.tier}.maxLines (${limit.maxLines}).`,
+            ),
+            remediation: planFileSizeSplit(file, limit.maxLines),
+          },
+          file,
+        ),
       );
     }
     return findings;
@@ -386,19 +420,22 @@ export const sveltePropsRule: CladRule = {
       if (count <= max) continue;
 
       findings.push(
-        enrichFinding({
-          rule: 'svelte-props-excess',
-          severity: ctx.config.svelteProps.severity,
-          filePath: file.relativePath,
-          tier: file.tier,
-          message: `Svelte component declares ${count} props (limit ${max}).`,
-          advice: sveltePropsRule.defaultAdvice,
-          reasoning: reasoningLines(
-            'Views should have narrow prop surfaces; session state belongs in AppSession/Organisms.',
-            `Detected ${count} destructured $props() bindings.`,
-          ),
-          remediation: planSveltePropsFix(file, count, max),
-        }),
+        enrichFinding(
+          {
+            rule: 'svelte-props-excess',
+            severity: ctx.config.svelteProps.severity,
+            filePath: file.relativePath,
+            tier: file.tier,
+            message: `Svelte component declares ${count} props (limit ${max}).`,
+            advice: sveltePropsRule.defaultAdvice,
+            reasoning: reasoningLines(
+              'Views should have narrow prop surfaces; session state belongs in AppSession/Organisms.',
+              `Detected ${count} destructured $props() bindings.`,
+            ),
+            remediation: planSveltePropsFix(file, count, max),
+          },
+          file,
+        ),
       );
     }
     return findings;

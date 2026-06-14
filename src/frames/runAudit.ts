@@ -28,10 +28,22 @@ export type RunAuditOutput = {
   rulesRun: string[];
 };
 
+function resolveAuditConfigPath(rootDir: string, configPath: string): string | undefined {
+  const candidates = [
+    resolve(configPath),
+    resolve(rootDir, configPath),
+    resolve(process.cwd(), configPath),
+  ];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+  return undefined;
+}
+
 export async function runAudit(input: RunAuditInput): Promise<RunAuditOutput> {
   const rootDir = resolve(input.rootDir);
-  const configPath = resolve(rootDir, input.configPath);
-  const config = loadCladAuditConfig(existsSync(configPath) ? configPath : undefined);
+  const configFile = resolveAuditConfigPath(rootDir, input.configPath);
+  const config = loadCladAuditConfig(configFile);
   const depth = input.depth ?? config.analysis.defaultDepth;
   const rulesRun =
     input.rules?.length

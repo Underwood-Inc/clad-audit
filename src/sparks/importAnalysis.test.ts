@@ -36,6 +36,8 @@ require('node:fs');
   import Foo from './Foo.svelte';
 </script>
 <div></div>`;
-    expect(parseSvelteImports(src).some((i) => i.specifier === './Foo.svelte')).toBe(true);
+    const imports = parseSvelteImports(src);
+    expect(imports.some((i) => i.specifier === './Foo.svelte')).toBe(true);
+    expect(imports[0]?.line).toBe(2);
   });
 });

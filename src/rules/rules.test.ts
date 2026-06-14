@@ -104,6 +104,25 @@ describe('import-boundary', () => {
     );
     expect(findings).toHaveLength(1);
     expect(findings[0].rule).toBe('import-boundary');
+    expect(findings[0].line).toBe(1);
+    expect(findings[0].column).toBeGreaterThan(1);
+    expect(findings[0].importSpecifier).toBe('../recipes/foo.js');
+  });
+});
+
+describe('finding locations', () => {
+  test('[FR-002] file-tier findings anchor away from line 1', () => {
+    const findings = appTierAllowlistRule.run(
+      ctx([
+        file({
+          relativePath: 'src/apps/x/randomHelper.ts',
+          tier: 'apps',
+          content: '// license\nimport { x } from "./x.js";\n',
+        }),
+      ]),
+    );
+    expect(findings[0]?.line).toBe(2);
+    expect(findings[0]?.column).toBeGreaterThan(1);
   });
 });
 

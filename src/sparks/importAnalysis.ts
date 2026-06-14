@@ -118,11 +118,20 @@ export function extractSvelteScriptBlocks(content: string): string[] {
   return blocks;
 }
 
-/** Imports from .svelte files (script blocks + module context). */
+/** Imports from .svelte files with 1-based line numbers in the SFC source. */
 export function parseSvelteImports(content: string): ParsedImport[] {
-  const blocks = extractSvelteScriptBlocks(content);
-  const combined = blocks.join('\n');
-  return parseAllImports(combined);
+  const out: ParsedImport[] = [];
+  const re = /<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi;
+  for (const m of content.matchAll(re)) {
+    const body = m[1];
+    if (!body) continue;
+    const bodyOffset = (m.index ?? 0) + m[0].indexOf(body);
+    const bodyStartLine = content.slice(0, bodyOffset).split('\n').length;
+    for (const imp of parseAllImports(body)) {
+      out.push({ ...imp, line: bodyStartLine + imp.line - 1 });
+    }
+  }
+  return out;
 }
 
 function lineNumberAt(source: string, index: number): number {

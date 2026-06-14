@@ -46,7 +46,14 @@ export type CladFinding = {
   message: string;
   advice: string;
   filePath: string;
+  /** 1-based start line (inclusive). */
   line?: number;
+  /** 1-based start column (inclusive). */
+  column?: number;
+  /** 1-based end line (inclusive). */
+  endLine?: number;
+  /** 1-based end column (exclusive in VS Code; inclusive here for auditor parity). */
+  endColumn?: number;
   tier?: CladTierId;
   expectedTier?: CladTierId;
   /** Why this violates CLAD — audit trail for reviewers. */

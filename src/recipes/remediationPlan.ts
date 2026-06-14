@@ -6,13 +6,15 @@ import type {
   RemediationStep,
   ScannedFile,
 } from '../motes/types.js';
+import { normalizeFindingLocation } from '../sparks/findingLocation.js';
 import { suggestTargetPath, tierFolder } from '../sparks/tierShape.js';
 
-export function enrichFinding(base: CladFinding): CladFinding {
-  return {
+export function enrichFinding(base: CladFinding, file?: ScannedFile): CladFinding {
+  const withReasoning: CladFinding = {
     ...base,
     reasoning: base.reasoning ?? [],
   };
+  return file ? normalizeFindingLocation(withReasoning, file) : withReasoning;
 }
 
 export function planMoveToTier(
