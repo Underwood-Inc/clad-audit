@@ -31,7 +31,9 @@ export async function auditEngine(input: AuditEngineInput): Promise<CladAuditRes
 
   const findings: CladFinding[] = [];
   for (const rule of selected) {
-    findings.push(...rule.run(ctx));
+    for (const finding of rule.run(ctx)) {
+      findings.push({ ...finding, ruleMinDepth: rule.minDepth });
+    }
   }
 
   findings.sort((a, b) => {

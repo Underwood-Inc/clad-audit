@@ -62,6 +62,8 @@ export type CladFinding = {
   remediation?: RemediationPlan;
   importSpecifier?: string;
   relatedPaths?: string[];
+  /** Minimum analysis depth that runs this rule (set by the auditor). */
+  ruleMinDepth?: AnalysisDepth;
 };
 
 export type CladAuditResult = {

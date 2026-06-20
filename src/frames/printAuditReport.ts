@@ -1,4 +1,5 @@
 import type { CladAuditResult } from '../motes/types.js';
+import { describeFindingDepthExposure, findingDepthBadge, summarizeFindingsByRuleMinDepth } from '../motes/findingDepth.js';
 import { createStyle, type Style } from '../sparks/terminalStyle.js';
 
 export type PrintAuditReportOptions = {
@@ -79,6 +80,18 @@ export function formatAuditReport(
     lines.push('');
   }
 
+  const depthSummary = summarizeFindingsByRuleMinDepth(result.findings);
+  const depthEntries = Object.entries(depthSummary).filter(([, n]) => (n ?? 0) > 0);
+  if (depthEntries.length > 0) {
+    lines.push(style.bold('By rule min depth'));
+    for (const [depth, count] of depthEntries.sort(
+      (a, b) => a[0].localeCompare(b[0]),
+    )) {
+      lines.push(`  ${style.accent(depth)} ${style.dim('·')} ${count}`);
+    }
+    lines.push('');
+  }
+
   const limit = options.findingLimit ?? result.findings.length;
   const shown = result.findings.slice(0, limit);
   const hidden = result.findings.length - shown.length;
@@ -94,6 +107,13 @@ export function formatAuditReport(
       `${formatSeverityBadge(style, f.severity)} ${style.rule(f.rule)} ${style.path(f.filePath)}${where}`,
     );
     lines.push(`  ${f.message}`);
+    const depthBadge = findingDepthBadge(f);
+    const depthNote = describeFindingDepthExposure(f, result.analysisDepth);
+    if (depthBadge) {
+      lines.push(`  ${style.info(`◆ ${depthBadge}`)}${depthNote ? style.dim(` — ${depthNote}`) : ''}`);
+    } else if (depthNote && f.ruleMinDepth !== 'quick') {
+      lines.push(`  ${style.dim(`◆ ${depthNote}`)}`);
+    }
     lines.push(`  ${style.success('→')} ${style.dim(f.advice)}`);
     if (options.verbose && f.reasoning?.length) {
       for (const r of f.reasoning) {

@@ -27,7 +27,8 @@
     "./audit": "./dist/engines/auditEngine.js",
     "./config": "./dist/motes/loadConfig.js",
     "./run": "./dist/frames/runAudit.js",
-    "./types": "./dist/motes/types.js"
+    "./types": "./dist/motes/types.js",
+    "./findingDepth": "./dist/motes/findingDepth.js"
   },
   "bin": {
     "clad-audit": "dist/frames/cli.js"
